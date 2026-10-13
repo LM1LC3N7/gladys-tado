@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-13
+
 ### Added
 
 - Account linking through the tado device-code sign-in (no password stored,
@@ -26,3 +28,6 @@ the notes of the version's GitHub Release.
   presence" and "read a zone".
 - Dashboard widgets "tado° home" and "tado° zone".
 - "Test the connection" and "Unlink the account" buttons.
+
+[Unreleased]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/LM1LC3N7/gladys-tado/releases/tag/v0.1.1

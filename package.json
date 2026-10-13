@@ -1,6 +1,6 @@
 {
   "name": "gladys-tado",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "tado° heating for Gladys Assistant: thermostats, hot water, home presence, open window detection, scene triggers and actions, dashboard widgets.",
   "type": "module",
