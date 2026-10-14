@@ -10,6 +10,11 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Docs: the outputs of the scene actions come from the variable list
+  (`{{<step>.<action>.<key>}}`), not `{{<key>}}`.
+
 ## [0.1.1] - 2026-10-13
 
 ### Added

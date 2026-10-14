@@ -54,7 +54,10 @@ program); **Off** turns the zone off (frost protection stays on tado's side).
 
 The actions **set a temperature** and **back to the schedule** return the
 zone's values; **read a zone** gives them for a condition that follows
-(`{{temperature}}`, `{{heating}}`, `{{open_window}}`...).
+(`temperature`, `heating`, `open_window`...). The following actions of the
+scene find them in their variable list (written `{{<step>.<action>.<key>}}`,
+for instance `{{0.0.temperature}}` when this action is the first of the
+scene).
 
 ## Privacy
 

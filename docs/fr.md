@@ -61,7 +61,10 @@ côté de tado).
 
 Les actions **régler une température** et **retour à la programmation**
 renvoient les valeurs de la zone ; **lire une zone** les donne pour une
-condition qui suit (`{{temperature}}`, `{{heating}}`, `{{open_window}}`…).
+condition qui suit (`temperature`, `heating`, `open_window`…). Les actions
+suivantes de la scène les trouvent dans leur liste de variables (écrites
+`{{<étape>.<action>.<clé>}}`, par exemple `{{0.0.temperature}}` quand cette
+action est la première de la scène).
 
 ## Confidentialité
 
