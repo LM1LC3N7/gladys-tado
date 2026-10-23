@@ -124,6 +124,10 @@
         "en": "Refresh interval (s)",
         "fr": "Intervalle de rafraîchissement (s)"
       },
+      "description": {
+        "en": "The shortest delay between two readings. tado limits each account to 100 requests a day without a subscription: the integration then spreads its readings over the day, so the effective interval can be much longer (about 40 minutes for one home).",
+        "fr": "Le délai minimal entre deux lectures. tado limite chaque compte à 100 requêtes par jour sans abonnement : l'intégration répartit alors ses lectures sur la journée, l'intervalle réel peut donc être bien plus long (environ 40 minutes pour une maison)."
+      },
       "default": 120,
       "min": 60,
       "max": 3600,

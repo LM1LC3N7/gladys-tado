@@ -44,7 +44,8 @@ src/widget.js       the "home" and "zone" widgets (pure)
 src/config.js       config_schema normalized (+ the off-schema token key)
 src/constants.js    endpoints, limits, manifest keys, Gladys enums
 src/i18n.js         runtime texts (en/fr)
-src/http.js         the only network access (fetch, timeout)
+src/tado/ratelimit.js  the daily quota: headers, budget, next delay (pure)
+src/http.js         the only network access (fetch, timeout, 429)
 test/fixtures/      tado answers (v2 and X), anonymized
 test/helpers/       fake fetch, fake timers; Gladys is the SDK's fake
 ```
@@ -61,9 +62,14 @@ test/helpers/       fake fetch, fake timers; Gladys is the SDK's fake
   stored through `setConfig` under `TOKEN_KEYS.REFRESH` (off-schema). A
   config update that only rotated the token must not restart the app
   (`configFingerprint`).
-- **Be polite with tado**: never read faster than once a minute per home;
-  the weather every 15 minutes, the zone list every hour. A command re-reads
-  its home once.
+- **Be polite with tado**: tado counts the requests per account and per day
+  (100 free, 20,000 with a subscription, `src/tado/ratelimit.js`). The loop
+  spreads the budget left above a reserve for the commands until the daily
+  reset, never faster than `refresh_interval` (≥ 60 s); a 429 pauses it until
+  the reset. Weather every 15 min and zone list hourly on a subscription,
+  every 3 h / 12 h on a free account. A command is never held back by the
+  pacing and re-reads its home once, unless the budget is at the reserve.
+  Every new API call must be counted in `homeCalls()`.
 - **One event per transition** (`src/triggers.js`): the first reading fires
   nothing.
 - **tado X is blind**: the hops mapping comes from public documentation; keep

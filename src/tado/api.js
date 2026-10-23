@@ -5,6 +5,9 @@
 // Both share the authentication and the home-level endpoints (presence,
 // weather, mobile devices). Every method resolves raw JSON: turning it into
 // values is src/tado/model.js's job.
+//
+// Every call goes through `call()`, which hands the rate-limit budget to the
+// HTTP layer: the app reads it to pace its polling (src/tado/ratelimit.js).
 // -----------------------------------------------------------------------------
 
 import { TADO_API_URL, TADO_HOPS_URL } from '../constants.js';
@@ -12,8 +15,10 @@ import { HttpError, request } from '../http.js';
 import { AuthError } from './auth.js';
 
 export class TadoClient {
-  constructor({ tokens, apiUrl = TADO_API_URL, hopsUrl = TADO_HOPS_URL }) {
+  constructor({ tokens, budget, now = Date.now, apiUrl = TADO_API_URL, hopsUrl = TADO_HOPS_URL }) {
     this.tokens = tokens;
+    this.budget = budget;
+    this.now = now;
     this.apiUrl = apiUrl;
     this.hopsUrl = hopsUrl;
   }
@@ -24,6 +29,8 @@ export class TadoClient {
     try {
       return await request(url, {
         ...options,
+        budget: this.budget,
+        now: this.now,
         headers: { Authorization: `Bearer ${token}`, ...(options.headers ?? {}) },
       });
     } catch (err) {

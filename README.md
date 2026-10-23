@@ -14,6 +14,7 @@ User documentation: [docs/en.md](docs/en.md) · [docs/fr.md](docs/fr.md).
 Gladys ⇄ SDK ⇄ src/app.js (TadoApp)
                  ├─ src/tado/auth.js   device-code sign-in, token refresh (login.tado.com)
                  ├─ src/tado/api.js    REST client: my.tado.com/api/v2 and hops.tado.com (tado X)
+                 ├─ src/tado/ratelimit.js  daily quota: headers, budget, next delay (pure)
                  ├─ src/tado/model.js  tado JSON -> zones, presence, weather, phones (pure)
                  ├─ src/devices.js     zones -> Gladys devices and states (pure)
                  ├─ src/commands.js    Gladys command -> overlay / resume / presence (pure)
@@ -26,13 +27,26 @@ Gladys ⇄ SDK ⇄ src/app.js (TadoApp)
   app asks tado for a device code and returns the verification URL, then
   polls the token endpoint until the user approves. The rotated refresh token
   is saved in the Gladys configuration under an off-schema key.
-- **Reading**: every `refresh_interval` seconds (120 by default), one
-  `zoneStates` call per classic home (or `rooms` on tado X), one `state`
-  call for the presence, the weather every 15 minutes, the zone list
-  (batteries) every hour. States go through `publishChangedStates`.
+- **Reading**: one `zoneStates` call per classic home (or `rooms` on tado
+  X), one `state` call for the presence, the weather every 15 minutes and the
+  zone list (batteries) every hour (every 3 h / 12 h on a free account).
+  States go through `publishChangedStates`.
+- **Daily quota** (`src/tado/ratelimit.js`): tado allows 100 requests a day
+  on a free account, 20,000 with a subscription, and advertises the budget
+  in the `ratelimit` / `ratelimit-policy` headers. The delay of the next
+  reading is `max(refresh_interval, time to reset / ((left - reserve) / calls
+per reading))`, the reserve (20 %, at least 10) staying for the commands;
+  a 429 pauses the readings until tado's reset (12:00 Europe/Berlin), or
+  briefly (growing pauses, once per pause) for a burst limit or a late
+  reset; a 200 answer just after noon whose count is the old day's and too
+  low for one reading (`readingCost`) counts as a late reset. A restart with
+  the homes known does not read out of turn; no HTTP answer at all retries
+  after `refresh_interval`, doubling up to 30 min. Timers never exceed 25 h.
 - **Commands**: a setpoint or a mode becomes a tado overlay (manual
   setting) whose termination is the configured default; "Schedule" deletes
-  the overlay. The home is re-read right after.
+  the overlay. The commanded values are published at once (the devices
+  have feedback); the home is re-read right after, unless the budget is
+  down to the reserve. The pacing never holds a command back.
 - **tado X** (`generation: LINE_X`): the hops endpoints `roomsAndDevices`,
   `rooms`, `manualControl` and `resumeSchedule`. Built without the hardware.
 

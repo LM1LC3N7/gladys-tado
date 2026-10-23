@@ -28,6 +28,26 @@ export const T = {
     en: `tado° is unreachable: ${message}. Retrying at the next refresh.`,
     fr: `tado° est injoignable : ${message}. Nouvel essai au prochain rafraîchissement.`,
   }),
+  rateLimited: (when) => ({
+    en: `tado° daily API quota used up (a free tado account allows 100 requests a day). Readings resume ${when.en}; commands fail until then.`,
+    fr: `Quota quotidien de l'API tado° épuisé (un compte tado gratuit autorise 100 requêtes par jour). Les lectures reprennent ${when.fr} ; les commandes échouent jusque-là.`,
+  }),
+  rateLimitedShort: (when) => ({
+    en: `tado° is turning requests away for now (too many requests). Readings resume ${when.en}.`,
+    fr: `tado° refuse les requêtes pour le moment (trop de requêtes). Les lectures reprennent ${when.fr}.`,
+  }),
+  commandRateLimitedShort: (when) => ({
+    en: `tado° refused the command for now (too many requests): try again after ${when.en}.`,
+    fr: `tado° a refusé la commande pour le moment (trop de requêtes) : réessayez après ${when.fr}.`,
+  }),
+  budgetLow: (when) => ({
+    en: `tado° daily API quota almost used: readings paused until ${when.en} to keep the last requests for your commands.`,
+    fr: `Quota quotidien de l'API tado° presque épuisé : lectures suspendues jusqu'à ${when.fr} pour garder les dernières requêtes pour vos commandes.`,
+  }),
+  commandRateLimited: (when) => ({
+    en: `tado° refused the command: the daily API quota is used up until ${when.en}.`,
+    fr: `tado° a refusé la commande : le quota quotidien de l'API est épuisé jusqu'à ${when.fr}.`,
+  }),
   unlinked: {
     en: 'Account unlinked. The devices stay in Gladys until you delete them.',
     fr: 'Compte délié. Les appareils restent dans Gladys tant que vous ne les supprimez pas.',
@@ -79,6 +99,32 @@ export const T = {
     failed: (message) => ({ en: `tado°: ${message}`, fr: `tado° : ${message}` }),
   },
 };
+
+/**
+ * A time for the messages above ("Sat 12:05" / "sam. 12:05"), in the home's
+ * time zone (the container usually runs in UTC).
+ */
+export function timeLabel(at, timeZone) {
+  const format = (locale, zone) =>
+    new Intl.DateTimeFormat(locale, {
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+      timeZone: zone,
+    }).format(at);
+  const label = (locale) => {
+    try {
+      return format(locale, timeZone || 'Europe/Berlin');
+    } catch {
+      return format(locale, 'UTC');
+    }
+  };
+  return { en: label('en-GB'), fr: label('fr-FR') };
+}
+
+/** One string for an error ack (Gladys shows the error text as is). */
+export const bothLanguages = (text) => `${text.en} / ${text.fr}`;
 
 export function weatherLabel(state) {
   const labels = {

@@ -59,6 +59,33 @@ scene find them in their variable list (written `{{<step>.<action>.<key>}}`,
 for instance `{{0.0.temperature}}` when this action is the first of the
 scene).
 
+## tado's daily request limit
+
+tado limits the number of requests each account can make per day: **100 a
+day on a free account**, 20,000 with an Auto-Assist or AI-Assist
+subscription. The counter resets around 12:00 (Berlin time). Every request
+counts, including those of other apps and integrations using the same
+account.
+
+The integration reads the remaining budget tado sends back and paces itself:
+
+- it keeps about a fifth of the quota (20 requests on a free account) for
+  your **commands** (setpoints from a widget or a scene), which are never
+  delayed;
+- it spreads the rest of the budget over the day: on a free account with one
+  home, a reading about every **40 minutes** (about an hour with the phone
+  presence sensors); the weather every 3 hours, the battery list twice a day;
+- with a subscription, the **Refresh interval** option applies as set
+  (2 minutes by default), the weather every 15 minutes.
+
+If the quota is used up anyway (another app sharing the account, many
+commands), the status says **"tado° daily API quota used up"** with the time
+the readings resume; commands fail with a clear message until tado's reset,
+and everything resumes by itself afterwards. When tado only asks to slow down for a moment, the status says so ("for now") and the readings resume within minutes; a tado reset a little after noon is noticed within minutes too. Saving the configuration or a restart of Gladys does not
+spend requests: the readings keep their pace. When tado cannot be reached at
+all (network down), the integration retries after the refresh interval,
+then less and less often (at most every 30 minutes).
+
 ## Privacy
 
 The integration talks only to tado's servers (`login.tado.com`,
@@ -72,8 +99,13 @@ default: they expose where the household members are.
   again.
 - **The status says "waiting for your approval"**: finish the sign-in in the
   tab that opened; the link is valid 5 minutes.
-- **Values move slowly**: tado is read every 2 minutes by default (option
-  **Refresh interval**). A command refreshes its home right away.
+- **Values move slowly**: on a free tado account the readings are spread
+  over the day because of tado's daily limit (see above); with a
+  subscription tado is read every 2 minutes by default (option **Refresh
+  interval**). After a command, Gladys shows the value you set at once; the
+  home is read again right after when the budget allows, otherwise at the
+  next reading. **Schedule** is always followed by a reading: only tado
+  knows what the schedule applies.
 - **A hot water zone has no setpoint**: your installation only supports
   on/off (tado reports it).
 - **tado X**: built from the public documentation of the hops API without

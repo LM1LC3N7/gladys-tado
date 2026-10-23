@@ -17,9 +17,23 @@ export const HTTP_TIMEOUT = 15_000;
 /** An access token lives 10 minutes: refresh it a little before. */
 export const TOKEN_MARGIN = 60_000;
 
-/** Refresh pace of the slow-moving data, in milliseconds. */
+/**
+ * Refresh pace of the slow-moving data, in milliseconds. On a free tado
+ * account (100 requests a day, src/tado/ratelimit.js) the weather every 15
+ * minutes alone would cost 96 requests: there it is read every 3 hours (8 a
+ * day: the outside temperature moves slowly) and the zone list (batteries,
+ * new zones) twice a day, leaving the budget to the zone states.
+ */
 export const WEATHER_INTERVAL = 15 * 60_000;
 export const DEVICES_INTERVAL = 60 * 60_000;
+export const WEATHER_INTERVAL_FREE = 3 * 60 * 60_000;
+export const DEVICES_INTERVAL_FREE = 12 * 60 * 60_000;
+/** After a 429, start again a little after the time tado gave. */
+export const RESUME_MARGIN = 60_000;
+/** No HTTP answer (network down): retry from refresh_interval, doubling up to this. */
+export const RETRY_BACKOFF_MAX = 30 * 60_000;
+/** A setTimeout over 2^31-1 ms fires after 1 ms in Node: never arm longer. */
+export const MAX_TIMER_DELAY = 25 * 60 * 60_000;
 
 /** Setpoint bounds the API accepts (°C). */
 export const TEMPERATURE = { MIN: 5, MAX: 25, STEP: 0.5, HOT_WATER_MIN: 30, HOT_WATER_MAX: 65 };

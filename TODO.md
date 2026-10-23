@@ -24,8 +24,11 @@
       and solar intensity sensors correctly in the device widget and charts.
 - [ ] The thermostat `mode` select shows the three labels of
       `supported_options` and sends integers back.
-- [ ] tado's rate limits with the default 120 s refresh (about 1500 calls a
-      day per home).
+- [ ] The daily quota pacing on a real account: tado sends the `ratelimit`
+      / `ratelimit-policy` headers on my.tado.com **and** hops.tado.com (an
+      answer without them is counted locally), `t=` matches the 12:00
+      Europe/Berlin reset, and a free account settles at about 35 readings a
+      day for one home (23 with the phone sensors) without a 429.
 
 ## Ideas
 

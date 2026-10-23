@@ -12,8 +12,34 @@ the notes of the version's GitHub Release.
 
 ### Fixed
 
+- tado's daily API quota (100 requests a day on a free account, 20,000 with
+  a subscription) is respected: the readings are spread over the day from the
+  budget tado advertises, a part of it is kept for the commands, and when the
+  quota is used up (HTTP 429) the readings pause until tado's reset with a
+  clear status, then resume by themselves. A command refused for the quota
+  fails with a clear message. Rate-limit handling inspired by
+  RouXx67/gladys-tado-integration.
+- After a command, the value set shows in Gladys at once, even when the
+  home is not read again to save tado's quota. "Back to the schedule" is
+  always followed by a reading (tado alone knows what the schedule applies),
+  limited to the zone states when the budget is low.
+- A tado reset later than noon is detected: when, just after noon, the
+  remaining count is still the old day's and too low to read, the
+  integration looks again within minutes (15 min, then 30 min, 1 h, 2 h)
+  instead of waiting a whole day. A low but usable count (another app busy
+  on the account) keeps the normal pace.
+- A configuration save or a reconnection to Gladys no longer reads tado out
+  of turn; a network outage is retried after the refresh interval (doubling,
+  at most 30 minutes); a temporary refusal of login.tado.com (network, 5xx, 429) no longer asks to link the account again.
 - Docs: the outputs of the scene actions come from the variable list
   (`{{<step>.<action>.<key>}}`), not `{{<key>}}`.
+
+### Changed
+
+- On a free tado account the weather is read every 3 hours (instead of 15
+  minutes) and the zone list twice a day (instead of hourly), to leave the
+  daily quota to the zone states. The "Refresh interval" option is now the
+  shortest delay between two readings.
 
 ## [0.1.1] - 2026-10-13
 

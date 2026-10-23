@@ -1,6 +1,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { homeCommand, settingFor, terminationFor, zoneCommand } from '../src/commands.js';
+import {
+  homeCommand,
+  presenceAfter,
+  settingFor,
+  terminationFor,
+  zoneAfter,
+  zoneCommand,
+} from '../src/commands.js';
 import { DEFAULTS, normalizeConfig } from '../src/config.js';
 import { FEATURE } from '../src/devices.js';
 import { zoneFromV2, zoneFromX } from '../src/tado/model.js';
@@ -92,4 +99,32 @@ test('the home presence select', () => {
   assert.deepEqual(homeCommand(FEATURE.PRESENCE_MODE, 'AWAY'), { kind: 'presence', value: 'AWAY' });
   assert.deepEqual(homeCommand(FEATURE.PRESENCE_MODE, 'auto'), { kind: 'presence', value: null });
   assert.throws(() => homeCommand(FEATURE.PRESENCE_MODE, 'maybe'), /Unknown presence/);
+});
+
+test('the state a command leaves, before the re-read', () => {
+  const zone = { id: '1', power: false, targetTemperature: 23, overlay: { type: 'MANUAL' } };
+  // A resume only ends the manual setting: power and target are tado's to say.
+  assert.deepEqual(zoneAfter(zone, { kind: 'resume' }), { ...zone, overlay: null });
+  // Not a zone command: the zone is unchanged.
+  assert.equal(zoneAfter(zone, { kind: 'presence', value: 'AWAY' }), zone);
+  const on = zoneAfter(zone, {
+    kind: 'overlay',
+    setting: { type: 'HEATING', power: 'ON', temperature: { celsius: 19 } },
+    termination: { typeSkillBasedApp: 'TIMER' },
+  });
+  assert.equal(on.power, true);
+  assert.equal(on.targetTemperature, 19);
+  assert.equal(on.overlay.type, 'TIMER');
+  const off = zoneAfter(zone, { kind: 'overlay', setting: { power: 'OFF' } });
+  assert.equal(off.targetTemperature, 23, 'off keeps the last target');
+  assert.deepEqual(presenceAfter({ presence: 'home' }, null), {
+    presence: 'home',
+    locked: false,
+    mode: 'auto',
+  });
+  assert.deepEqual(presenceAfter(undefined, 'AWAY'), {
+    presence: 'away',
+    locked: true,
+    mode: 'away',
+  });
 });

@@ -66,6 +66,36 @@ suivantes de la scène les trouvent dans leur liste de variables (écrites
 `{{<étape>.<action>.<clé>}}`, par exemple `{{0.0.temperature}}` quand cette
 action est la première de la scène).
 
+## La limite quotidienne de requêtes de tado
+
+tado limite le nombre de requêtes de chaque compte par jour : **100 par jour
+sur un compte gratuit**, 20 000 avec un abonnement Auto-Assist ou AI-Assist.
+Le compteur repart à zéro vers 12 h (heure de Berlin). Toutes les requêtes
+comptent, y compris celles des autres applications et intégrations qui
+utilisent le même compte.
+
+L'intégration lit le budget restant que tado renvoie et règle son rythme :
+
+- elle garde environ un cinquième du quota (20 requêtes sur un compte
+  gratuit) pour vos **commandes** (consignes depuis un widget ou une scène),
+  qui ne sont jamais retardées ;
+- elle répartit le reste du budget sur la journée : sur un compte gratuit
+  avec une maison, une lecture environ toutes les **40 minutes** (environ une
+  heure avec les capteurs de présence des téléphones) ; la météo toutes les
+  3 heures, la liste des piles deux fois par jour ;
+- avec un abonnement, l'option **Intervalle de rafraîchissement** s'applique
+  telle quelle (2 minutes par défaut), la météo toutes les 15 minutes.
+
+Si le quota est malgré tout épuisé (une autre application sur le même
+compte, beaucoup de commandes), l'état indique **« Quota quotidien de l'API
+tado° épuisé »** avec l'heure de reprise des lectures ; les commandes
+échouent avec un message clair jusqu'à la remise à zéro de tado, puis tout
+reprend tout seul. Quand tado demande seulement de ralentir un moment, l'état l'indique (« pour le moment ») et les lectures reprennent après quelques minutes ; une remise à zéro de tado un peu après midi est elle aussi repérée en quelques minutes. Enregistrer la configuration ou redémarrer Gladys ne
+consomme pas de requêtes : les lectures gardent leur rythme. Si tado est
+injoignable (réseau coupé), l'intégration réessaie après l'intervalle de
+rafraîchissement, puis de moins en moins souvent (au plus toutes les
+30 minutes).
+
 ## Confidentialité
 
 L'intégration ne parle qu'aux serveurs de tado (`login.tado.com`,
@@ -80,9 +110,14 @@ foyer.
   nouveau sur **Lier mon compte tado°**.
 - **L'état dit « en attente de votre approbation »** : terminez la
   connexion dans l'onglet ouvert ; le lien est valable 5 minutes.
-- **Les valeurs bougent lentement** : tado est lu toutes les 2 minutes par
-  défaut (option **Intervalle de rafraîchissement**). Une commande rafraîchit
-  sa maison immédiatement.
+- **Les valeurs bougent lentement** : sur un compte tado gratuit, les
+  lectures sont réparties sur la journée à cause de la limite quotidienne de
+  tado (voir plus haut) ; avec un abonnement, tado est lu toutes les
+  2 minutes par défaut (option **Intervalle de rafraîchissement**). Après une
+  commande, Gladys affiche aussitôt la valeur demandée ; la maison est
+  relue juste après si le budget le permet, sinon à la lecture suivante.
+  **Programmation** est toujours suivie d'une lecture : seul tado sait ce
+  que le programme applique.
 - **Une zone eau chaude n'a pas de consigne** : votre installation ne gère
   que marche/arrêt (tado le signale).
 - **tado X** : construit d'après la documentation publique de l'API hops,

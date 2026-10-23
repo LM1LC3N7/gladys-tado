@@ -14,10 +14,7 @@ const gladys = new GladysIntegration();
 const app = new TadoApp({ gladys });
 
 // --- Discovery and commands ------------------------------------------------------
-gladys.onScanRequest(async () => {
-  await app.discover();
-  await app.refresh();
-});
+gladys.onScanRequest(() => app.scan());
 gladys.onSetValue((device, feature, value) => app.setValue(device, feature, value));
 
 // --- Account linking: the device-code flow needs no redirect ---------------------

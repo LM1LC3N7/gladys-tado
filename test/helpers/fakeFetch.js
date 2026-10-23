@@ -9,10 +9,10 @@ setFetch(async (url) => {
   throw new Error(`Network call without a fake fetch in a test: ${url}`);
 });
 
-export const json = (body, status = 200) =>
+export const json = (body, status = 200, headers = {}) =>
   new Response(body === undefined ? null : JSON.stringify(body), {
     status,
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', ...headers },
   });
 
 /**

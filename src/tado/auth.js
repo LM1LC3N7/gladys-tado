@@ -42,6 +42,7 @@ export async function startDeviceFlow({ now = Date.now } = {}) {
     answer = await request(`${TADO_AUTH_URL}/device_authorize`, {
       method: 'POST',
       form: true,
+      now,
       body: { client_id: TADO_CLIENT_ID, scope: TADO_SCOPE },
     });
   } catch (err) {
@@ -67,6 +68,7 @@ export async function pollDeviceFlow(deviceCode, { now = Date.now } = {}) {
       await request(`${TADO_AUTH_URL}/token`, {
         method: 'POST',
         form: true,
+        now,
         body: {
           client_id: TADO_CLIENT_ID,
           grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
@@ -91,6 +93,7 @@ export async function refresh(refreshToken, { now = Date.now } = {}) {
       await request(`${TADO_AUTH_URL}/token`, {
         method: 'POST',
         form: true,
+        now,
         body: {
           client_id: TADO_CLIENT_ID,
           grant_type: 'refresh_token',
@@ -100,7 +103,13 @@ export async function refresh(refreshToken, { now = Date.now } = {}) {
       now,
     );
   } catch (err) {
-    throw oauthError(err);
+    // Only a refusal of the refresh token means "link again". A network
+    // failure, a 5xx or a 429 of login.tado.com is transient: thrown as is,
+    // the refresh loop retries it at its pace.
+    if (err instanceof HttpError && err.status >= 400 && err.status < 500 && err.status !== 429) {
+      throw oauthError(err);
+    }
+    throw err;
   }
 }
 

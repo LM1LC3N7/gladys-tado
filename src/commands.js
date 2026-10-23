@@ -169,3 +169,42 @@ export function homeCommand(key, value) {
   }
   throw new CommandError(`Feature ${key} of the home is not a command`);
 }
+
+/**
+ * The zone as the command left it, before tado is read again: the devices
+ * have feedback, so Gladys shows what the integration publishes, and the
+ * re-read may be skipped to save tado's daily quota. The next reading
+ * replaces it with the real state.
+ */
+export function zoneAfter(zone, command) {
+  if (command.kind === 'resume') {
+    // Only the end of the manual setting is known: what the schedule applies
+    // (on or off, which target) is tado's to say, at the re-read.
+    return { ...zone, overlay: null };
+  }
+  if (command.kind !== 'overlay') {
+    return zone;
+  }
+  const { setting, termination } = command;
+  const power = setting.power === 'ON';
+  const target = setting.temperature?.celsius ?? setting.temperature?.value;
+  return {
+    ...zone,
+    power,
+    targetTemperature: power && target !== undefined ? target : zone.targetTemperature,
+    acMode: setting.mode ?? zone.acMode,
+    overlay: {
+      type: String(termination?.typeSkillBasedApp ?? termination?.type ?? 'MANUAL'),
+      expiresAt: null,
+    },
+  };
+}
+
+/** The presence reading as a presence command left it (null = automatic). */
+export function presenceAfter(presence, value) {
+  if (value === null) {
+    return { presence: presence?.presence ?? null, locked: false, mode: PRESENCE.AUTO };
+  }
+  const forced = String(value).toLowerCase();
+  return { presence: forced, locked: true, mode: forced };
+}
