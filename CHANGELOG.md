@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-23
+
 ### Fixed
 
 - tado's daily API quota (100 requests a day on a free account, 20,000 with
@@ -60,5 +62,6 @@ the notes of the version's GitHub Release.
 - Dashboard widgets "tado° home" and "tado° zone".
 - "Test the connection" and "Unlink the account" buttons.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/LM1LC3N7/gladys-tado/releases/tag/v0.1.1
