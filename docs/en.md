@@ -106,6 +106,10 @@ default: they expose where the household members are.
   home is read again right after when the budget allows, otherwise at the
   next reading. **Schedule** is always followed by a reading: only tado
   knows what the schedule applies.
+- **Hot water goes from 30 to 65 °C**: a setpoint above 65 °C is refused (a
+  scene, the device, the widget), and a setpoint read from tado that is higher
+  is written back at 65 °C when you switch the zone on. Switching off always
+  works. Without a setpoint, hot water is switched on at 55 °C.
 - **A hot water zone has no setpoint**: your installation only supports
   on/off (tado reports it).
 - **tado X**: built from the public documentation of the hops API without

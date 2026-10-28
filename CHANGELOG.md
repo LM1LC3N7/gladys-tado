@@ -18,6 +18,16 @@ the notes of the version's GitHub Release.
   and air conditioning modes) are plain English strings instead of
   `{ en, fr }` objects, and a test applies the core's option and device rules
   to every device the integration builds.
+- Hot water is never written above 65 °C: the setpoint read back from tado (or
+  the next schedule block) used when it is switched on or put in manual mode
+  was written as it was, even at 70 °C; it is now brought to 65 °C at most
+  (30 °C at least, 55 °C when tado gave none), and a last guard refuses any
+  hot water setting above 65 °C. Switching off is never refused.
+
+### Changed
+
+- A hot water setpoint above 65 °C (a scene, the thermostat widget) is refused
+  instead of being brought back to 65 °C.
 
 ## [0.1.2] - 2026-10-23
 

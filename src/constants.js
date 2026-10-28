@@ -36,7 +36,15 @@ export const RETRY_BACKOFF_MAX = 30 * 60_000;
 export const MAX_TIMER_DELAY = 25 * 60 * 60_000;
 
 /** Setpoint bounds the API accepts (°C). */
-export const TEMPERATURE = { MIN: 5, MAX: 25, STEP: 0.5, HOT_WATER_MIN: 30, HOT_WATER_MAX: 65 };
+export const TEMPERATURE = {
+  MIN: 5,
+  MAX: 25,
+  STEP: 0.5,
+  HOT_WATER_MIN: 30,
+  HOT_WATER_MAX: 65,
+  /** What hot water is switched on at when tado gave no setpoint. */
+  HOT_WATER_DEFAULT: 55,
+};
 
 /** Manifest keys (forever: stored in user scenes and dashboards). */
 export const ACTIONS = { TEST: 'test_connection', UNLINK: 'unlink' };

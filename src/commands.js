@@ -58,6 +58,11 @@ export function settingFor(zone, { power = true, temperature, acMode } = {}) {
       : { power: 'OFF', temperature: null };
   }
   if (zone.type === ZONE_TYPES.HOT_WATER) {
+    // The last guard before the write, whatever the path (a setpoint, a value read back):
+    // never above the ceiling. A switch off carries no temperature, so it always goes.
+    if (power && temperature > TEMPERATURE.HOT_WATER_MAX) {
+      throw new CommandError(`Hot water is limited to ${TEMPERATURE.HOT_WATER_MAX} °C`);
+    }
     const setting = { type: 'HOT_WATER', power: power ? 'ON' : 'OFF' };
     if (power && zone.canSetTemperature && temperature !== undefined) {
       setting.temperature = { celsius: temperature };
@@ -85,6 +90,17 @@ function currentTarget(zone, fallback) {
 }
 
 /**
+ * The setpoint a hot water zone is switched on at: the one read back from tado (or the
+ * next schedule block), brought into the bounds (70 becomes 65, a lowering), else 55 °C.
+ */
+function hotWaterTarget(zone) {
+  const read = currentTarget(zone, TEMPERATURE.HOT_WATER_DEFAULT);
+  return Number.isFinite(read)
+    ? Math.min(TEMPERATURE.HOT_WATER_MAX, Math.max(TEMPERATURE.HOT_WATER_MIN, read))
+    : TEMPERATURE.HOT_WATER_DEFAULT;
+}
+
+/**
  * Resolve a command on a ZONE device. `key` is the feature key, `value` the
  * command value from Gladys, `config` the normalized configuration.
  */
@@ -97,7 +113,7 @@ export function zoneCommand(zone, key, value, config, { termination } = {}) {
   if (zone.type === ZONE_TYPES.HOT_WATER) {
     if (key === FEATURE.POWER) {
       return overlay(
-        settingFor(zone, { power: Number(value) === 1, temperature: currentTarget(zone, 55) }),
+        settingFor(zone, { power: Number(value) === 1, temperature: hotWaterTarget(zone) }),
       );
     }
     if (key === FEATURE.MODE) {
@@ -108,7 +124,7 @@ export function zoneCommand(zone, key, value, config, { termination } = {}) {
       return overlay(
         settingFor(zone, {
           power: mode !== WATER_HEATER_MODE.OFF,
-          temperature: currentTarget(zone, 55),
+          temperature: hotWaterTarget(zone),
         }),
       );
     }

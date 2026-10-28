@@ -138,3 +138,47 @@ test('hot water: the ceiling is 65 °C, 65 goes and anything above is refused', 
     assert.throws(() => zoneCommand(settable, FEATURE.TARGET, value, config), /limited to 65/);
   }
 });
+
+test('hot water: a value read back is brought to 65 °C at most, and a switch off always goes', () => {
+  const settable = { ...water, canSetTemperature: true };
+  const celsius = (command) => command.setting.temperature?.celsius;
+  const readings = {
+    'on at 70 °C': { power: true, targetTemperature: 70 },
+    'off, next block at 70 °C': {
+      power: false,
+      targetTemperature: null,
+      nextChange: { start: null, targetTemperature: 70 },
+    },
+  };
+  for (const [name, read] of Object.entries(readings)) {
+    const zone = { ...settable, ...read };
+    assert.equal(celsius(zoneCommand(zone, FEATURE.POWER, 1, config)), 65, `power on, ${name}`);
+    assert.equal(celsius(zoneCommand(zone, FEATURE.MODE, 4, config)), 65, `manual, ${name}`);
+    // A switch off carries no temperature and is never refused.
+    assert.deepEqual(zoneCommand(zone, FEATURE.POWER, 0, config).setting, {
+      type: 'HOT_WATER',
+      power: 'OFF',
+    });
+    assert.deepEqual(zoneCommand(zone, FEATURE.MODE, 0, config).setting, {
+      type: 'HOT_WATER',
+      power: 'OFF',
+    });
+  }
+  // Bounded below as well, and 55 when tado gave nothing.
+  assert.equal(
+    celsius(zoneCommand({ ...settable, targetTemperature: 12 }, FEATURE.POWER, 1, config)),
+    30,
+  );
+  assert.equal(celsius(zoneCommand(settable, FEATURE.POWER, 1, config)), 55);
+  // The last guard, on whatever reaches settingFor: above the ceiling nothing is built.
+  assert.throws(() => settingFor(settable, { power: true, temperature: 70 }), /limited to 65/);
+  assert.throws(
+    () => settingFor({ ...water, canSetTemperature: false }, { power: true, temperature: 70 }),
+    /limited to 65/,
+  );
+  assert.equal(settingFor(settable, { power: true, temperature: 65 }).temperature.celsius, 65);
+  assert.deepEqual(settingFor(settable, { power: false, temperature: 70 }), {
+    type: 'HOT_WATER',
+    power: 'OFF',
+  });
+});

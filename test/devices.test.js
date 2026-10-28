@@ -9,6 +9,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { createRequire } from 'node:module';
 import {
   DEVICE_FEATURE_CATEGORIES,
@@ -21,12 +23,18 @@ import { zoneFromV2, zoneFromX } from '../src/tado/model.js';
 import * as v2 from './fixtures/v2.js';
 import * as x from './fixtures/x.js';
 
-// The core's own validator of supported_options, when a Gladys clone is at hand
-// (not on GitHub CI): the rules below are its schema, this is the proof.
-const CORE_NORMALIZE = '/home/claude/code/Gladys/server/utils/normalizeSupportedOptions.js';
-const normalizeSupportedOptions = existsSync(CORE_NORMALIZE)
-  ? createRequire(import.meta.url)(CORE_NORMALIZE).normalizeSupportedOptions
+// The core's own code, when a Gladys clone is at hand (GLADYS_CORE, else ~/code/Gladys;
+// not on GitHub CI): the rules below are its schema, this is the proof.
+const CORE = process.env.GLADYS_CORE ?? join(homedir(), 'code', 'Gladys');
+const coreRequire = existsSync(join(CORE, 'server', 'utils', 'normalizeSupportedOptions.js'))
+  ? createRequire(join(CORE, 'server', 'package.json'))
   : undefined;
+const normalizeSupportedOptions = coreRequire?.(
+  './utils/normalizeSupportedOptions.js',
+).normalizeSupportedOptions;
+const setDiscoveredDevices = coreRequire?.(
+  './lib/external-integration/externalIntegration.setDiscoveredDevices.js',
+).setDiscoveredDevices;
 
 const gladys = createFakeGladys({ selector: 'tado', config: {} });
 const home = { id: 1234, name: 'Maison' };
@@ -69,6 +77,11 @@ function checkOptions(options, where, allowStringValues) {
       option.sort_order === undefined || Number.isInteger(option.sort_order),
       `${at}.sort_order`,
     );
+    // Joi object: no key beyond these (the core strips only its own DB columns).
+    const known = ['value', 'label', 'sort_order', 'id', 'value_string', 'device_feature_id'];
+    for (const key of Object.keys(option)) {
+      assert.ok(known.includes(key), `${at}: unknown key ${key}`);
+    }
   }
   const values = options.map((o) => `${o.value}`);
   assert.equal(new Set(values).size, values.length, `${where}: duplicate values`);
@@ -139,8 +152,11 @@ test('the rest of the publication follows the core schema (setDiscoveredDevices)
         f.step === undefined || (Number.isFinite(f.step) && f.step > 0),
         `${at}: step must be a positive number`,
       );
-      // min and max are NOT NULL doubles in the core's device_feature model.
+      // NOT NULL columns of the core's device_feature model (device creation).
       assert.ok(Number.isFinite(f.min) && Number.isFinite(f.max), `${at}: min/max`);
+      for (const flag of ['read_only', 'has_feedback', 'keep_history']) {
+        assert.equal(typeof f[flag], 'boolean', `${at}: ${flag} is required`);
+      }
     }
     // No reserved GLADYS_* param name, no poll_frequency without a poll.
     for (const param of device.params ?? []) {
@@ -149,4 +165,26 @@ test('the rest of the publication follows the core schema (setDiscoveredDevices)
     }
     assert.equal(device.poll_frequency, undefined);
   }
+});
+
+test('the core accepts the whole publication (its own setDiscoveredDevices)', async (t) => {
+  if (!setDiscoveredDevices) {
+    t.skip('no Gladys clone (set GLADYS_CORE)');
+    return;
+  }
+  const core = {
+    discoveredDevices: new Map(),
+    stateManager: { get: () => undefined },
+    event: { emit() {} },
+  };
+  const devices = allDevices().map(([, device]) => device);
+  const count = await setDiscoveredDevices.call(core, { id: 'svc', selector: 'tado' }, devices);
+  assert.equal(count, devices.length);
+});
+
+test('the option rules also see an unknown key', () => {
+  assert.throws(
+    () => checkOptions([{ value: 0, label: 'Off', icon: 'x' }], 'bad', false),
+    /unknown key icon/,
+  );
 });

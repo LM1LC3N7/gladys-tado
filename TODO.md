@@ -20,6 +20,10 @@
       (`roomId` / `roomName` vs `id` / `name`), `/rooms`, `manualControl`
       and `resumeSchedule` on hops.tado.com; hot water on tado X is not
       handled yet.
+- [ ] The home presence select (a text select) shows its labels as they are,
+      in English, in the French interface: the core only accepts a plain string
+      for a label and does not translate it. The thermostat, hot water and air
+      conditioning selects are translated by the front from the value.
 - [ ] The `unknown` category with a percent unit renders the heating power
       and solar intensity sensors correctly in the device widget and charts.
 - [ ] The thermostat `mode` select shows the three labels of

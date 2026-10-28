@@ -118,6 +118,10 @@ foyer.
   relue juste après si le budget le permet, sinon à la lecture suivante.
   **Programmation** est toujours suivie d'une lecture : seul tado sait ce
   que le programme applique.
+- **L'eau chaude va de 30 à 65 °C** : une consigne au-dessus de 65 °C est
+  refusée (scène, appareil, widget), et une consigne lue chez tado plus haute
+  est réécrite à 65 °C quand vous allumez la zone. L'arrêt marche toujours.
+  Sans consigne, l'eau chaude s'allume à 55 °C.
 - **Une zone eau chaude n'a pas de consigne** : votre installation ne gère
   que marche/arrêt (tado le signale).
 - **tado X** : construit d'après la documentation publique de l'API hops,
