@@ -26,7 +26,7 @@ the notes of the version's GitHub Release.
 
 ### Changed
 
-- A hot water setpoint above 65 °C (a scene, the thermostat widget) is refused
+- A hot water setpoint above 65 °C (a scene, the device) is refused
   instead of being brought back to 65 °C.
 
 ## [0.1.2] - 2026-10-23
