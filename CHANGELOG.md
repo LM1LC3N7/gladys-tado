@@ -10,6 +10,15 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Gladys no longer refuses the whole device publication
+  (`supported_options: "[0].label" must be a string`), which left Discovery
+  empty: the labels of the select options (home presence, heating, hot water
+  and air conditioning modes) are plain English strings instead of
+  `{ en, fr }` objects, and a test applies the core's option and device rules
+  to every device the integration builds.
+
 ## [0.1.2] - 2026-10-23
 
 ### Fixed

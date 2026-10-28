@@ -74,6 +74,9 @@ const feature = (deviceId, key, name, category, type, extra = {}) => ({
   ...extra,
 });
 
+// The core refuses the whole publication unless every label is a plain string
+// (a { en, fr } object makes Discovery list nothing): keep them English strings,
+// like the feature names.
 const option = (value, label) => ({ value, label });
 
 export function buildHomeDevice(gladys, home) {
@@ -89,15 +92,9 @@ export function buildHomeDevice(gladys, home) {
         read_only: false,
         keep_history: false,
         supported_options: [
-          {
-            ...option(PRESENCE.AUTO, {
-              en: 'Automatic (geofencing)',
-              fr: 'Automatique (géolocalisation)',
-            }),
-            sort_order: 0,
-          },
-          { ...option(PRESENCE.HOME, { en: 'Home', fr: 'Maison' }), sort_order: 1 },
-          { ...option(PRESENCE.AWAY, { en: 'Away', fr: 'Absent' }), sort_order: 2 },
+          { ...option(PRESENCE.AUTO, 'Automatic (geofencing)'), sort_order: 0 },
+          { ...option(PRESENCE.HOME, 'Home'), sort_order: 1 },
+          { ...option(PRESENCE.AWAY, 'Away'), sort_order: 2 },
         ],
       }),
       feature(
@@ -148,9 +145,9 @@ function heatingFeatures(id) {
       read_only: false,
       keep_history: false,
       supported_options: [
-        { ...option(THERMOSTAT_MODE.OFF, { en: 'Off', fr: 'Arrêt' }), sort_order: 0 },
-        { ...option(THERMOSTAT_MODE.HEATING, { en: 'Manual', fr: 'Manuel' }), sort_order: 1 },
-        { ...option(THERMOSTAT_MODE.AUTO, { en: 'Schedule', fr: 'Programmation' }), sort_order: 2 },
+        { ...option(THERMOSTAT_MODE.OFF, 'Off'), sort_order: 0 },
+        { ...option(THERMOSTAT_MODE.HEATING, 'Manual'), sort_order: 1 },
+        { ...option(THERMOSTAT_MODE.AUTO, 'Schedule'), sort_order: 2 },
       ],
     }),
     feature(id, FEATURE.OPERATING, 'Heating', C.THERMOSTAT, T.THERMOSTAT.OPERATING_STATE, {
@@ -177,10 +174,10 @@ function hotWaterFeatures(id, zone) {
       read_only: false,
       keep_history: false,
       supported_options: [
-        { ...option(WATER_HEATER_MODE.OFF, { en: 'Off', fr: 'Arrêt' }), sort_order: 0 },
-        { ...option(WATER_HEATER_MODE.MANUAL, { en: 'Manual', fr: 'Manuel' }), sort_order: 1 },
+        { ...option(WATER_HEATER_MODE.OFF, 'Off'), sort_order: 0 },
+        { ...option(WATER_HEATER_MODE.MANUAL, 'Manual'), sort_order: 1 },
         {
-          ...option(WATER_HEATER_MODE.AUTO, { en: 'Schedule', fr: 'Programmation' }),
+          ...option(WATER_HEATER_MODE.AUTO, 'Schedule'),
           sort_order: 2,
         },
       ],
@@ -218,11 +215,11 @@ function acFeatures(id) {
       read_only: false,
       keep_history: false,
       supported_options: [
-        { ...option(AC_MODE.AUTO, { en: 'Auto', fr: 'Auto' }), sort_order: 0 },
-        { ...option(AC_MODE.COOLING, { en: 'Cool', fr: 'Froid' }), sort_order: 1 },
-        { ...option(AC_MODE.HEATING, { en: 'Heat', fr: 'Chaud' }), sort_order: 2 },
-        { ...option(AC_MODE.DRYING, { en: 'Dry', fr: 'Déshumidification' }), sort_order: 3 },
-        { ...option(AC_MODE.FAN, { en: 'Fan', fr: 'Ventilation' }), sort_order: 4 },
+        { ...option(AC_MODE.AUTO, 'Auto'), sort_order: 0 },
+        { ...option(AC_MODE.COOLING, 'Cool'), sort_order: 1 },
+        { ...option(AC_MODE.HEATING, 'Heat'), sort_order: 2 },
+        { ...option(AC_MODE.DRYING, 'Dry'), sort_order: 3 },
+        { ...option(AC_MODE.FAN, 'Fan'), sort_order: 4 },
       ],
     }),
     feature(

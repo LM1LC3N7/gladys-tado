@@ -23,7 +23,9 @@
 - [ ] The `unknown` category with a percent unit renders the heating power
       and solar intensity sensors correctly in the device widget and charts.
 - [ ] The thermostat `mode` select shows the three labels of
-      `supported_options` and sends integers back.
+      `supported_options` and sends integers back. The labels are plain
+      English strings (the core's schema refuses `{ en, fr }`); the
+      Discovery of a real tado X home lists its devices.
 - [ ] The daily quota pacing on a real account: tado sends the `ratelimit`
       / `ratelimit-policy` headers on my.tado.com **and** hops.tado.com (an
       answer without them is counted locally), `t=` matches the 12:00
