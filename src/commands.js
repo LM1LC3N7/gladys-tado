@@ -113,6 +113,9 @@ export function zoneCommand(zone, key, value, config, { termination } = {}) {
       );
     }
     if (key === FEATURE.TARGET) {
+      if (Number(value) > TEMPERATURE.HOT_WATER_MAX) {
+        throw new CommandError(`Hot water is limited to ${TEMPERATURE.HOT_WATER_MAX} °C`);
+      }
       const t = clamp(value, TEMPERATURE.HOT_WATER_MIN, TEMPERATURE.HOT_WATER_MAX, 1);
       return overlay(settingFor(zone, { power: true, temperature: t }));
     }

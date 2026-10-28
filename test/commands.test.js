@@ -9,6 +9,7 @@ import {
   zoneCommand,
 } from '../src/commands.js';
 import { DEFAULTS, normalizeConfig } from '../src/config.js';
+import { TEMPERATURE } from '../src/constants.js';
 import { FEATURE } from '../src/devices.js';
 import { zoneFromV2, zoneFromX } from '../src/tado/model.js';
 import * as v2 from './fixtures/v2.js';
@@ -127,4 +128,13 @@ test('the state a command leaves, before the re-read', () => {
     locked: true,
     mode: 'away',
   });
+});
+
+test('hot water: the ceiling is 65 °C, 65 goes and anything above is refused', () => {
+  const settable = { ...water, canSetTemperature: true };
+  assert.equal(TEMPERATURE.HOT_WATER_MAX, 65);
+  assert.equal(zoneCommand(settable, FEATURE.TARGET, 65, config).setting.temperature.celsius, 65);
+  for (const value of [65.5, 66, 99]) {
+    assert.throws(() => zoneCommand(settable, FEATURE.TARGET, value, config), /limited to 65/);
+  }
 });
