@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-10-28
+
 ### Fixed
 
 - Gladys no longer refuses the whole device publication
@@ -81,6 +83,7 @@ the notes of the version's GitHub Release.
 - Dashboard widgets "tado° home" and "tado° zone".
 - "Test the connection" and "Unlink the account" buttons.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/LM1LC3N7/gladys-tado/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/LM1LC3N7/gladys-tado/releases/tag/v0.1.1

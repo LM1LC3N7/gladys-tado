@@ -6,8 +6,8 @@
     "en": "Unofficial connector: tado° thermostats, hot water, home presence, open windows, scenes and widgets.",
     "fr": "Connecteur non officiel : thermostats tado°, eau chaude, présence, fenêtres, scènes et widgets."
   },
-  "version": "0.1.2",
-  "docker_image": "ghcr.io/lm1lc3n7/gladys-tado:0.1.2",
+  "version": "0.1.3",
+  "docker_image": "ghcr.io/lm1lc3n7/gladys-tado:0.1.3",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/LM1LC3N7/gladys-tado/main/cover.png",
   "categories": ["climate"],
